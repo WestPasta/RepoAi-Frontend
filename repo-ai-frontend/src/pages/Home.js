@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import './Home.css';
 
 function Home() {
   const [activeSection, setActiveSection] = useState('home');
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const { currentUser, logout } = useAuth();
 
   const getOffsets = () => {
     const headerHeight = document.querySelector('.header')?.offsetHeight || 0;
@@ -113,7 +115,20 @@ function Home() {
             <NavLink to="/contact" className={({isActive}) => `nav-link${isActive ? ' active' : ''}`}>Contact Us</NavLink>
           </nav>
           <div className="auth-buttons">
-            <Link to="/login" className="btn-get-started">Get Started</Link>
+            {currentUser ? (
+              <>
+                <Link to="/main" className="btn-get-started">Dashboard</Link>
+                <button 
+                  onClick={logout}
+                  className="btn-get-started"
+                  style={{ marginLeft: '10px', backgroundColor: '#dc3545' }}
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link to="/login" className="btn-get-started">Get Started</Link>
+            )}
           </div>
         </header>
 

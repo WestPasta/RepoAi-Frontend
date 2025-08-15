@@ -1,20 +1,44 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import './Home.css';
 
 function Login() {
   const [isLogin, setIsLogin] = useState(true);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [registerData, setRegisterData] = useState({ name: '', email: '', password: '' });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  
+  const { login, signup } = useAuth();
+  const navigate = useNavigate();
 
-  const handleLoginSubmit = (event) => {
+  const handleLoginSubmit = async (event) => {
     event.preventDefault();
-    alert(`Logging in as ${loginData.email}`);
+    try {
+      setError('');
+      setLoading(true);
+      await login(loginData.email, loginData.password);
+      navigate('/main');
+    } catch (error) {
+      setError('Failed to sign in: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleRegisterSubmit = (event) => {
+  const handleRegisterSubmit = async (event) => {
     event.preventDefault();
-    alert(`Registering ${registerData.name}`);
+    try {
+      setError('');
+      setLoading(true);
+      await signup(registerData.email, registerData.password, registerData.name);
+      navigate('/main');
+    } catch (error) {
+      setError('Failed to create account: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const toggleForm = () => {
@@ -65,6 +89,7 @@ function Login() {
                     <div className="social-separator">or use your account</div>
                   </div>
 
+                  {error && <div className="error-message" style={{color: 'red', marginBottom: '10px', textAlign: 'center'}}>{error}</div>}
                   <form onSubmit={handleLoginSubmit} className="auth-form">
                     <div className="form-group">
                       <label className="form-label">Email</label>
@@ -75,6 +100,7 @@ function Login() {
                         required 
                         className="form-input"
                         placeholder="Email"
+                        disabled={loading}
                       />
                     </div>
                     
@@ -87,6 +113,7 @@ function Login() {
                         required 
                         className="form-input"
                         placeholder="Password"
+                        disabled={loading}
                       />
                     </div>
                     
@@ -94,8 +121,8 @@ function Login() {
                       <a href="#" className="forgot-link">Forgot your password?</a>
                     </div>
                     
-                    <button type="submit" className="auth-submit-btn login-btn">
-                      SIGN IN
+                    <button type="submit" className="auth-submit-btn login-btn" disabled={loading}>
+                      {loading ? 'SIGNING IN...' : 'SIGN IN'}
                     </button>
                   </form>
                 </div>
@@ -144,6 +171,7 @@ function Login() {
                     <div className="social-separator">or use your email for registration</div>
                   </div>
 
+                  {error && <div className="error-message" style={{color: 'red', marginBottom: '10px', textAlign: 'center'}}>{error}</div>}
                   <form onSubmit={handleRegisterSubmit} className="auth-form">
                     <div className="form-group">
                       <label className="form-label">Name</label>
@@ -154,6 +182,7 @@ function Login() {
                         required 
                         className="form-input"
                         placeholder="Name"
+                        disabled={loading}
                       />
                     </div>
                     
@@ -166,6 +195,7 @@ function Login() {
                         required 
                         className="form-input"
                         placeholder="Email"
+                        disabled={loading}
                       />
                     </div>
                     
@@ -178,11 +208,12 @@ function Login() {
                         required 
                         className="form-input"
                         placeholder="Password"
+                        disabled={loading}
                       />
                     </div>
                     
-                    <button type="submit" className="auth-submit-btn register-btn">
-                      SIGN UP
+                    <button type="submit" className="auth-submit-btn register-btn" disabled={loading}>
+                      {loading ? 'SIGNING UP...' : 'SIGN UP'}
                     </button>
                   </form>
                 </div>
